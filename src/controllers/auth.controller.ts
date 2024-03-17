@@ -76,7 +76,9 @@ export const register = async (req: express.Request, res: express.Response) => {
             },
         });
 
-        return res.status(200).json(user).end();
+        return res.status(200)
+            .json({ "success": "User created successfully" })
+            .end();
     } catch (error) {
         console.log(error);
         return res.sendStatus(400);
@@ -99,7 +101,7 @@ export const newRefreshToken = async (req: express.Request, res: express.Respons
             }
             const accessToken = generateAccessToken(user.id, user.username);
             try {
-                await updateUserById(user.id, { authentication: { accessToken: accessToken } });
+                await updateUserById(user.id, { accessToken: accessToken });
             } catch (error) {
                 console.log(error);
             }
