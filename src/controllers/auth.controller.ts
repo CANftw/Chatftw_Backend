@@ -101,7 +101,12 @@ export const newRefreshToken = async (req: express.Request, res: express.Respons
             }
             const accessToken = generateAccessToken(user.id, user.username);
             try {
-                await updateUserById(user.id, { accessToken: accessToken });
+                const updatedUser = await getUserById(user.id);
+                if (!updatedUser) {
+                    return res.status(404).send('User not found');
+                }
+                updatedUser.authentication.accessToken = accessToken;
+                await updatedUser.save();
             } catch (error) {
                 console.log(error);
             }
