@@ -15,14 +15,14 @@ export const addMessageToRoom = async (
         messages: [
           {
             username: user as string,
-            message: message as string,
+            message: encryptString(message as string) ,
           },
         ],
       });
     } else {
       room.messages.push({
         username: user as string,
-        message: encryptString(message as string) as string,
+        message: encryptString(message as string) ,
       });
       await room.save();
     }
@@ -38,8 +38,18 @@ export const getMessagesFromRoom = async (
   const { room } = req.params;
 
   try {
-    const messages = await getRoomByName(room);
-    return res.status(200).json(messages);
+      const messages = await getRoomByName(room);
+        if (!messages) {
+            return res.status(404).json({ error: "Room not found" });
+      }
+      
+      const sendingBack = messages.messages.map((message: any) => {
+            return {
+                username: message.username,
+                message: decryptString(message.message),
+            };
+        });
+    return res.status(200).json(sendingBack);
   } catch (error) {
     console.log(error);
     return res.json({ error: "DB Error Not Found" }).sendStatus(400);
